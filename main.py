@@ -53,17 +53,18 @@ Attributes:
         start_key = list(self.stock_data.keys())[start_index]
 
         # Isolate adjusted price for the end of the end month, and the initial price
-        # from the end of the start month.
+        # from the end of the start month (ensure dividend is removed).
         adjusted_end_price = float(
             self.stock_data[end_key]["5. adjusted close"])
-        start_price = float(self.stock_data[start_key]["4. close"])
+        start_price = float(self.stock_data[start_key]["5. adjusted close"]) - float(
+            self.stock_data[start_key]["7. dividend amount"])
 
         total_returns = (
             (adjusted_end_price - start_price) / start_price) * 100
 
         return total_returns
 
-#test_stock = Stock(data)
+test_stock = Stock(data)
 
-#print(data)
-#print(test_stock.get_year_return())
+print(data)
+print(test_stock.get_year_return())
