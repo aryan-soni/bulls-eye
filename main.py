@@ -5,8 +5,9 @@ ts = TimeSeries(key=api_key)
 
 stock_to_search = input("Please enter the stock's ticker: ")
 
-# Get json object with the intraday data and another with the call's metadata
+# Get json objects with the intraday data and another with the call's metadata
 data, meta_data = ts.get_monthly_adjusted(stock_to_search)
+index_data, index_meta_data = ts.get_monthly_adjusted("SPY")
 
 
 class Stock:
@@ -16,10 +17,16 @@ Attributes:
     stock_data: A dictionary containing the stock's historical data.
     months_of_data: The number of months of data that the stock has.
     years_of_data: The number of years of data that the stock has.
+    total_returns: A list containing the stock's total returns year-over-year 
+        for 5 years.
+    mean: The stock's mean return over 5 years.
+    deviations: A list containing the deviations between the stock's 
+        year-over-year returns over 5 years and the stock's mean return over 
+        5 years.
 """
 
     def __init__(self, stock_data):
-        """Constructs Stock using stock's historical data.
+        """Constructs Stock using stock's and index's historical data.
 
         Args:
           stock_data: A dictionary containing the stock's historical data.
@@ -28,6 +35,22 @@ Attributes:
 
         self.months_of_data = len(list(self.stock_data.keys())) - 1
         self.years_of_data = self.months_of_data // 12
+
+        # Extract the stock's mean return over 5 years.
+        self.mean = self.get_five_year_mean_return()
+
+        self.total_returns = []
+        self.deviations = []
+
+        # Populate returns and deviation list for stock.
+        if self.years_of_data >= 5:
+            for i in range(0, 5):
+                self.total_returns.append(self.get_year_return(12 * i + 1))
+                self.deviations.append(self.total_returns[i] - self.mean)
+        else:
+            for i in range(0, self.years_of_data):
+                self.total_returns[i].append(self.get_year_return(12 * i + 1))
+                self.deviations[i].append(self.total_returns[i] - self.mean)
 
     def get_year_return(self, end_index=1):
         """ Determines a stock's total return (%) for a given year
@@ -88,14 +111,26 @@ Attributes:
 
         else:
 
-            for i in range(0, years_of_data):
+            for i in range(0, self.years_of_data):
                 total_sum += self.get_year_return(12 * i + 1)
 
             mean = total_sum / self.years_of_data
 
         return mean
 
-#test_stock = Stock(data)
 
-#print(data)
-#print(test_stock.get_five_year_mean_return())
+"""
+
+stock = Stock(data)
+index = Stock(index_data)
+
+print(stock.mean)
+print(index.mean)
+
+for i in range(0, 5):
+    print(stock.total_returns[i])
+    print(index.total_returns[i])
+    print(stock.deviations[i])
+    print(index.total_returns[i])
+
+"""
