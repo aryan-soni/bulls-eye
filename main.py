@@ -64,7 +64,36 @@ Attributes:
 
         return total_returns
 
-test_stock = Stock(data)
+    def get_five_year_mean_return(self):
+        """ Determines the mean of a stock's total returns (%) for the last five years
 
-print(data)
-print(test_stock.get_year_return())
+        Returns:
+            The mean actual rate of return over five years (%) 
+        """
+
+        months_of_data = len(list(self.stock_data.keys())) - 1
+        years_of_data = months_of_data // 12
+
+        total_sum = 0
+        mean = 0
+
+        if years_of_data >= 5:
+
+            for i in range(0, 5):
+                total_sum += self.get_year_return(12 * i + 1)
+
+            mean = total_sum / 5
+
+        else:
+
+            for i in range(0, years_of_data):
+                total_sum += self.get_year_return(12 * i + 1)
+
+            mean = total_sum / years_of_data
+
+        return mean
+
+#test_stock = Stock(data)
+
+#print(data)
+#print(test_stock.get_five_year_mean_return())
