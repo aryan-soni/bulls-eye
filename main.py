@@ -11,7 +11,7 @@ index_data, index_meta_data = ts.get_monthly_adjusted("SPY")
 
 
 class Stock:
-    """ Models a Stock based on all its historic data, and contains methods that return key indicators.
+    """ Models a Stock based on all its historic data.
 
 Attributes:
     stock_data: A dictionary containing the stock's historical data.
@@ -37,7 +37,7 @@ Attributes:
         self.years_of_data = self.months_of_data // 12
 
         # Extract the stock's mean return over 5 years.
-        self.mean = self.get_five_year_mean_return()
+        self.mean = self.calculate_mean_return()
 
         self.total_returns = []
         self.deviations = []
@@ -45,14 +45,14 @@ Attributes:
         # Populate returns and deviation list for stock.
         if self.years_of_data >= 5:
             for i in range(0, 5):
-                self.total_returns.append(self.get_year_return(12 * i + 1))
+                self.total_returns.append(self.calculate_year_return(12 * i + 1))
                 self.deviations.append(self.total_returns[i] - self.mean)
         else:
             for i in range(0, self.years_of_data):
-                self.total_returns[i].append(self.get_year_return(12 * i + 1))
+                self.total_returns[i].append(self.calculate_year_return(12 * i + 1))
                 self.deviations[i].append(self.total_returns[i] - self.mean)
 
-    def get_year_return(self, end_index=1):
+    def calculate_year_return(self, end_index=1):
         """ Determines a stock's total return (%) for a given year
 
         Args:
@@ -92,7 +92,7 @@ Attributes:
 
         return total_returns
 
-    def get_five_year_mean_return(self):
+    def calculate_mean_return(self):
         """ Determines the mean of a stock's total returns (%) for the last five years
 
         Returns:
@@ -105,32 +105,39 @@ Attributes:
         if self.years_of_data >= 5:
 
             for i in range(0, 5):
-                total_sum += self.get_year_return(12 * i + 1)
+                total_sum += self.calculate_year_return(12 * i + 1)
 
             mean = total_sum / 5
 
         else:
 
             for i in range(0, self.years_of_data):
-                total_sum += self.get_year_return(12 * i + 1)
+                total_sum += self.calculate_year_return(12 * i + 1)
 
             mean = total_sum / self.years_of_data
 
         return mean
 
+class Calculator:
+    """ Models a calculator that can return the key historical measures of a stock (alpha, beta etc.).
+
+Attributes:
+    stock: The stock which will be examined.
+    index: The index to compare the stock to.
+"""
+    def __init__(self, stock, index):
+        """Constructs Calculator using the stock and the index.
+
+        Args:
+          stock_data: A dictionary containing the stock's historical data.
+        """
+        self.stock = stock
+        self.index = index
 
 """
-
 stock = Stock(data)
 index = Stock(index_data)
-
-print(stock.mean)
-print(index.mean)
-
-for i in range(0, 5):
-    print(stock.total_returns[i])
-    print(index.total_returns[i])
-    print(stock.deviations[i])
-    print(index.total_returns[i])
-
+calculator = Calculator(stock, index)
+print(calculator.stock.mean)
+print(calculator.index.mean)
 """
