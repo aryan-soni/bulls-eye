@@ -14,6 +14,8 @@ class Stock:
 
 Attributes:
     stock_data: A dictionary containing the stock's historical data.
+    months_of_data: The number of months of data that the stock has.
+    years_of_data: The number of years of data that the stock has.
 """
 
     def __init__(self, stock_data):
@@ -23,6 +25,9 @@ Attributes:
           stock_data: A dictionary containing the stock's historical data.
         """
         self.stock_data = stock_data
+
+        self.months_of_data = len(list(self.stock_data.keys())) - 1
+        self.years_of_data = self.months_of_data // 12
 
     def get_year_return(self, end_index=1):
         """ Determines a stock's total return (%) for a given year
@@ -71,13 +76,10 @@ Attributes:
             The mean actual rate of return over five years (%) 
         """
 
-        months_of_data = len(list(self.stock_data.keys())) - 1
-        years_of_data = months_of_data // 12
-
         total_sum = 0
         mean = 0
 
-        if years_of_data >= 5:
+        if self.years_of_data >= 5:
 
             for i in range(0, 5):
                 total_sum += self.get_year_return(12 * i + 1)
@@ -89,7 +91,7 @@ Attributes:
             for i in range(0, years_of_data):
                 total_sum += self.get_year_return(12 * i + 1)
 
-            mean = total_sum / years_of_data
+            mean = total_sum / self.years_of_data
 
         return mean
 
