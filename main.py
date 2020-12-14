@@ -41,25 +41,25 @@ Attributes:
 
         # Populate returns list for stock.
         if self.years_of_data >= 5:
-            for i in range(0, 61):
+            for i in range(60):
                 self.total_returns.append(self.calculate_month_return(i + 1))
         else:
-            for i in range(0, self.months_of_data):
-                self.total_returns[i].append(self.calculate_month_return(i + 1))
+            for i in range(self.months_of_data):
+                self.total_returns.append(self.calculate_month_return(i + 1))
 
         self.mean = 0
 
         if self.years_of_data >= 5:
-            self.mean = sum(self.total_returns) / 5
+            self.mean = sum(self.total_returns) / 60
         else:
-            self.mean = sum(self.total_returns) / self.years_of_data
+            self.mean = sum(self.total_returns) / self.months_of_data
 
         # Populate deviations list for stock.
         if self.years_of_data >= 5:
-            for i in range(0, 61):
+            for i in range(60):
                 self.deviations.append(self.total_returns[i] - self.mean)
         else:
-            for i in range(0, self.months_of_data):
+            for i in range(self.months_of_data):
                 self.deviations.append(self.total_returns[i] - self.mean)
 
     def calculate_month_return(self, end_index=1):
@@ -118,4 +118,3 @@ Attributes:
         """
         self.stock = stock
         self.index = index
-
