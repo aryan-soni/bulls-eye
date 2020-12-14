@@ -118,3 +118,45 @@ Attributes:
         """
         self.stock = stock
         self.index = index
+        self.beta = self.calculate_covariance() / self.calculate_variance()
+    def calculate_covariance(self):
+        """ Determines the covariance of the chosen stock and index
+
+        Returns:
+            The covariance of the chosen stock and index
+        """
+
+        product_of_deviations = [a * b for a, b in zip(self.stock.deviations, self.index.deviations)]
+
+        sum_of_products = sum(product_of_deviations)
+
+        if self.stock.years_of_data >= 5:
+            return sum_of_products / 59
+        else:
+            return sum_of_products / (self.stock.months_of_data - 1)
+
+    def calculate_variance(self):
+        """ Determines the variance for index
+
+        Returns:
+            The variance of index
+        """
+
+        squared_deviations = [(n) ** 2 for n in self.index.deviations]
+
+        sum_of_squared_deviations = sum(squared_deviations)
+
+        if self.stock.years_of_data >= 5:
+            return sum_of_squared_deviations / 59
+        else:
+            return sum_of_squared_deviations / (self.stock.years_of_data - 1)
+
+
+stock = Stock(data)
+index = Stock(index_data)
+calculator = Calculator(stock, index)
+
+
+print(len(calculator.stock.total_returns))
+print(round(calculator.beta, 2))
+
