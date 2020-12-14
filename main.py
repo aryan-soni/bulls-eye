@@ -17,11 +17,11 @@ Attributes:
     stock_data: A dictionary containing the stock's historical data.
     months_of_data: The number of months of data that the stock has.
     years_of_data: The number of years of data that the stock has.
-    total_returns: A list containing the stock's total returns year-over-year 
+    total_returns: A list containing the stock's total returns month-over-month 
         for 5 years.
     mean: The stock's mean return over 5 years.
     deviations: A list containing the deviations between the stock's 
-        year-over-year returns over 5 years and the stock's mean return over 
+        month-over-month returns over 5 years and the stock's mean return over 
         5 years.
 """
 
@@ -36,44 +36,54 @@ Attributes:
         self.months_of_data = len(list(self.stock_data.keys())) - 1
         self.years_of_data = self.months_of_data // 12
 
-        # Extract the stock's mean return over 5 years.
-        self.mean = self.calculate_mean_return()
-
         self.total_returns = []
         self.deviations = []
 
-        # Populate returns and deviation list for stock.
+        # Populate returns list for stock.
         if self.years_of_data >= 5:
-            for i in range(0, 5):
-                self.total_returns.append(self.calculate_year_return(12 * i + 1))
+            for i in range(0, 61):
+                self.total_returns.append(self.calculate_year_return(i + 1))
+        else:
+            for i in range(0, self.months_of_data):
+                self.total_returns[i].append(self.calculate_year_return(i + 1))
+
+        self.mean = 0
+
+        if self.years_of_data >= 5:
+            self.mean = sum(self.total_returns) / 5
+        else:
+            self.mean = sum(self.total_returns) / self.years_of_data
+
+        # Populate deviations list for stock.
+        if self.years_of_data >= 5:
+            for i in range(0, 61):
                 self.deviations.append(self.total_returns[i] - self.mean)
         else:
-            for i in range(0, self.years_of_data):
-                self.total_returns[i].append(self.calculate_year_return(12 * i + 1))
-                self.deviations[i].append(self.total_returns[i] - self.mean)
+            for i in range(0, self.months_of_data):
+                self.deviations.append(self.total_returns[i] - self.mean)
 
-    def calculate_year_return(self, end_index=1):
-        """ Determines a stock's total return (%) for a given year
+    def calculate_month_return(self, end_index=1):
+        """ Determines a stock's total return (%) for a given month
 
         Args:
             end_index: Where the parent keys in self.stock_data are converted 
-                    to a list, end_index represents which index the "end month" 
-                    would be. The "end month" is the month which you use to 
-                    calculate the "end price." For example, if you were to calculate 
-                    your return for the year from Nov. 2019-Nov. 2020, your end month 
-                    would be Oct. 2020, as you would look at the data from the end of 
-                    Oct. to calculate the "end price." In this context, the "start 
-                    month" would be Oct. 2019, as you would look to the data from the 
-                    end of Oct. to calculate the "start price." Moving on, the end_index 
-                    is set to 1 by default as index 1 will store the most recent month
-                    with complete historical data.
+                to a list, end_index represents which index the "end month" 
+                would be. The "end month" is the month which you use to 
+                calculate the "end price." For example, if you were to calculate 
+                your return for the month of April, your end month would be 
+                April, as you would look at the data from the end of April to
+                calculate the "end price." In this context. the "start month" 
+                would be March, as you would look to the data from the end of March 
+                to calculate the "start price." Moving on, the end_index is set 
+                to 1 by default as index 1 will store the most recent month with
+                complete historical data.
 
         Returns:
-            The actual rate of return for a given year (%) 
+            The actual rate of return for a given month (%) 
         """
 
         end_index = end_index
-        start_index = end_index + 12  # Start index is 12 months before the end_index
+        start_index = end_index + 1 # Start index is 1 month before the end_index
 
         # Isolate dates corresponding to end and start months, which will be a
         # string that will be used as a key.
@@ -92,38 +102,13 @@ Attributes:
 
         return total_returns
 
-    def calculate_mean_return(self):
-        """ Determines the mean of a stock's total returns (%) for the last five years
-
-        Returns:
-            The mean actual rate of return over five years (%) 
-        """
-
-        total_sum = 0
-        mean = 0
-
-        if self.years_of_data >= 5:
-
-            for i in range(0, 5):
-                total_sum += self.calculate_year_return(12 * i + 1)
-
-            mean = total_sum / 5
-
-        else:
-
-            for i in range(0, self.years_of_data):
-                total_sum += self.calculate_year_return(12 * i + 1)
-
-            mean = total_sum / self.years_of_data
-
-        return mean
-
 class Calculator:
     """ Models a calculator that can return the key historical measures of a stock (alpha, beta etc.).
 
 Attributes:
     stock: The stock which will be examined.
     index: The index to compare the stock to.
+    beta: The beta of the stock
 """
     def __init__(self, stock, index):
         """Constructs Calculator using the stock and the index.
@@ -134,10 +119,3 @@ Attributes:
         self.stock = stock
         self.index = index
 
-"""
-stock = Stock(data)
-index = Stock(index_data)
-calculator = Calculator(stock, index)
-print(calculator.stock.mean)
-print(calculator.index.mean)
-"""
