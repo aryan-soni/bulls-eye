@@ -42,10 +42,10 @@ Attributes:
         # Populate returns list for stock.
         if self.years_of_data >= 5:
             for i in range(0, 61):
-                self.total_returns.append(self.calculate_year_return(i + 1))
+                self.total_returns.append(self.calculate_month_return(i + 1))
         else:
             for i in range(0, self.months_of_data):
-                self.total_returns[i].append(self.calculate_year_return(i + 1))
+                self.total_returns[i].append(self.calculate_month_return(i + 1))
 
         self.mean = 0
 
