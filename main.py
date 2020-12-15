@@ -1,7 +1,10 @@
 from alpha_vantage.timeseries import TimeSeries
+import quandl
 
 api_key = input("Enter your Alpha Vantage API Key: ")
 ts = TimeSeries(key=api_key)
+
+quandl.ApiConfig.api_key = input("Enter your Quandl API Key: ")
 
 stock_to_search = input("Please enter the stock's ticker: ")
 
@@ -17,11 +20,11 @@ Attributes:
     stock_data: A dictionary containing the stock's historical data.
     months_of_data: The number of months of data that the stock has.
     years_of_data: The number of years of data that the stock has.
-    total_returns: A list containing the stock's total returns month-over-month 
+    total_returns: A list containing the stock's total returns month-over-month
         for 5 years.
     mean: The stock's mean return over 5 years.
-    deviations: A list containing the deviations between the stock's 
-        month-over-month returns over 5 years and the stock's mean return over 
+    deviations: A list containing the deviations between the stock's
+        month-over-month returns over 5 years and the stock's mean return over
         5 years.
 """
 
@@ -66,24 +69,24 @@ Attributes:
         """ Determines a stock's total return (%) for a given month
 
         Args:
-            end_index: Where the parent keys in self.stock_data are converted 
-                to a list, end_index represents which index the "end month" 
-                would be. The "end month" is the month which you use to 
-                calculate the "end price." For example, if you were to calculate 
-                your return for the month of April, your end month would be 
+            end_index: Where the parent keys in self.stock_data are converted
+                to a list, end_index represents which index the "end month"
+                would be. The "end month" is the month which you use to
+                calculate the "end price." For example, if you were to calculate
+                your return for the month of April, your end month would be
                 April, as you would look at the data from the end of April to
-                calculate the "end price." In this context. the "start month" 
-                would be March, as you would look to the data from the end of March 
-                to calculate the "start price." Moving on, the end_index is set 
+                calculate the "end price." In this context. the "start month"
+                would be March, as you would look to the data from the end of March
+                to calculate the "start price." Moving on, the end_index is set
                 to 1 by default as index 1 will store the most recent month with
                 complete historical data.
 
         Returns:
-            The actual rate of return for a given month (%) 
+            The actual rate of return for a given month (%)
         """
 
         end_index = end_index
-        start_index = end_index + 1 # Start index is 1 month before the end_index
+        start_index = end_index + 1  # Start index is 1 month before the end_index
 
         # Isolate dates corresponding to end and start months, which will be a
         # string that will be used as a key.
@@ -102,14 +105,17 @@ Attributes:
 
         return total_returns
 
+
 class Calculator:
     """ Models a calculator that can return the key historical measures of a stock (alpha, beta etc.).
 
 Attributes:
     stock: The stock which will be examined.
     index: The index to compare the stock to.
-    beta: The beta of the stock
+    beta: The beta of the stock.
+    risk_free_return: The risk-free rate of return.
 """
+
     def __init__(self, stock, index):
         """Constructs Calculator using the stock and the index.
 
@@ -118,15 +124,18 @@ Attributes:
         """
         self.stock = stock
         self.index = index
-        self.beta = self.calculate_covariance() / self.calculate_variance()
+        self.beta = self.calculate_beta()
+        self.risk_free_return = self.get_risk_free_return();
+
     def calculate_covariance(self):
-        """ Determines the covariance of the chosen stock and index
+        """ Determines the covariance of the chosen stock and index.
 
         Returns:
-            The covariance of the chosen stock and index
+            The covariance of the chosen stock and index.
         """
 
-        product_of_deviations = [a * b for a, b in zip(self.stock.deviations, self.index.deviations)]
+        product_of_deviations = [
+            a * b for a, b in zip(self.stock.deviations, self.index.deviations)]
 
         sum_of_products = sum(product_of_deviations)
 
@@ -136,10 +145,10 @@ Attributes:
             return sum_of_products / (self.stock.months_of_data - 1)
 
     def calculate_variance(self):
-        """ Determines the variance for index
+        """ Determines the variance for the index.
 
         Returns:
-            The variance of index
+            The variance of index.
         """
 
         squared_deviations = [(n) ** 2 for n in self.index.deviations]
@@ -151,6 +160,43 @@ Attributes:
         else:
             return sum_of_squared_deviations / (self.stock.years_of_data - 1)
 
+    def calculate_beta(self):
+        """ Determines the beta for the chosen stock
+
+        Returns:
+            The beta of the chosen stock.
+        """
+
+        return self.calculate_covariance() / self.calculate_variance()
+
+    def get_risk_free_return(self):
+        """ Determines the risk free rate of return (%).
+
+        Returns:
+            The risk free rate of return (%). Leverages the yield of the 5-year 
+            U.S. Treasury Note; corresponding to when the 5-year period begins 
+            for the stock being tracked. For example, if you're looking at MG.TO 
+            and the 5-year period you're examining starts in Nov. 2015, this method 
+            would return the yield for the U.S. Treasury 5-Year Note had you purchased 
+            it at that specific date in Nov. 2015.
+        """
+
+        # Index in the list of months of the first month being tracked in the five-year period
+        index_of_first_month = 0
+
+        if self.stock.years_of_data >= 5:
+            index_of_first_month = 60
+        else:
+            index_of_first_month = self.months_of_data
+
+        date = list(self.stock.stock_data.keys())[index_of_first_month]
+
+        treasury_data = quandl.get("USTREASURY/YIELD", start_date=date,
+                  end_date=date).to_dict()
+
+        return list(treasury_data['5 YR'].values())[0]
+
+
 
 stock = Stock(data)
 index = Stock(index_data)
@@ -160,3 +206,4 @@ calculator = Calculator(stock, index)
 print(len(calculator.stock.total_returns))
 print(round(calculator.beta, 2))
 
+print(calculator.risk_free_return)
