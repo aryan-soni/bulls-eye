@@ -20,6 +20,8 @@ Attributes:
     stock_data: A dictionary containing the stock's historical data.
     months_of_data: The number of months of data that the stock has.
     years_of_data: The number of years of data that the stock has.
+    total_return: The stock's five-year total return (including dividends, but assuming 
+        the dvidends aren't re-invested).
     total_returns: A list containing the stock's total returns month-over-month
         for 5 years.
     mean: The stock's mean return over 5 years.
@@ -49,6 +51,9 @@ Attributes:
         else:
             for i in range(self.months_of_data):
                 self.total_returns.append(self.calculate_month_return(i + 1))
+
+        # Determine total return over 5 years
+        self.total_return = self.calculate_total_return()
 
         self.mean = 0
 
@@ -104,6 +109,42 @@ Attributes:
             (adjusted_end_price - start_price) / start_price) * 100
 
         return total_returns
+
+    def calculate_total_return(self):
+        """ Determines a stock's total return (%) over 5 years
+
+        Returns:
+            The actual rate of return over 5 years (%)
+        """
+
+        if self.years_of_data >= 5:
+            start_index = 60
+        else:
+            start_index = self.months_of_data
+
+        end_index = 1
+
+        # Isolate dates corresponding to end and start months, which will be a
+        # string that will be used as a key.
+        end_key = list(self.stock_data.keys())[end_index]
+        start_key = list(self.stock_data.keys())[start_index]
+
+        # Isolate adjusted price for the end of the end month, and the initial price
+        # from the end of the start month (ensure dividend is removed).
+        adjusted_end_price = float(
+            self.stock_data[end_key]["5. adjusted close"])
+        start_price = float(self.stock_data[start_key]["5. adjusted close"]) - float(
+            self.stock_data[start_key]["7. dividend amount"])
+
+        # Add dividends from entire 5 years to end price
+        for i in range(2, start_index):
+            selected_key = list(self.stock_data.keys())[i]
+            adjusted_end_price += float(self.stock_data[selected_key]["7. dividend amount"])
+
+        total_return = (
+            (adjusted_end_price - start_price) / start_price) * 100
+
+        return total_return
 
 
 class Calculator:
@@ -187,7 +228,7 @@ Attributes:
         if self.stock.years_of_data >= 5:
             index_of_first_month = 60
         else:
-            index_of_first_month = self.months_of_data
+            index_of_first_month = self.stock.months_of_data
 
         date = list(self.stock.stock_data.keys())[index_of_first_month]
 
@@ -206,4 +247,5 @@ calculator = Calculator(stock, index)
 print(len(calculator.stock.total_returns))
 print(round(calculator.beta, 2))
 
-print(calculator.risk_free_return)
+print(calculator.stock.total_return)
+print(calculator.index.total_return)
