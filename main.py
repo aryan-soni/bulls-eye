@@ -139,7 +139,8 @@ Attributes:
         # Add dividends from entire 5 years to end price
         for i in range(2, start_index):
             selected_key = list(self.stock_data.keys())[i]
-            adjusted_end_price += float(self.stock_data[selected_key]["7. dividend amount"])
+            adjusted_end_price += float(
+                self.stock_data[selected_key]["7. dividend amount"])
 
         total_return = (
             (adjusted_end_price - start_price) / start_price) * 100
@@ -155,6 +156,7 @@ Attributes:
     index: The index to compare the stock to.
     beta: The beta of the stock.
     risk_free_return: The risk-free rate of return.
+    alpha: The alpha of the stock (specificially Jensen's alpha, as per the Capital Asset Pricing Model).
 """
 
     def __init__(self, stock, index):
@@ -166,7 +168,8 @@ Attributes:
         self.stock = stock
         self.index = index
         self.beta = self.calculate_beta()
-        self.risk_free_return = self.get_risk_free_return();
+        self.risk_free_return = self.get_risk_free_return()
+        self.alpha = self.calculate_alpha()
 
     def calculate_covariance(self):
         """ Determines the covariance of the chosen stock and index.
@@ -233,10 +236,19 @@ Attributes:
         date = list(self.stock.stock_data.keys())[index_of_first_month]
 
         treasury_data = quandl.get("USTREASURY/YIELD", start_date=date,
-                  end_date=date).to_dict()
+                                   end_date=date).to_dict()
 
         return list(treasury_data['5 YR'].values())[0]
 
+    def calculate_alpha(self):
+        """ Determines the alpha of the chosen stock.
+
+        Returns:
+            The alpha of the chosen stock.
+        """
+
+        return self.stock.total_return - self.risk_free_return -
+        (self.beta * (self.index.total_return - self.risk_free_return))
 
 
 stock = Stock(data)
@@ -246,6 +258,4 @@ calculator = Calculator(stock, index)
 
 print(len(calculator.stock.total_returns))
 print(round(calculator.beta, 2))
-
-print(calculator.stock.total_return)
-print(calculator.index.total_return)
+print(round(calculator.alpha, 2))
