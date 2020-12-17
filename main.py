@@ -157,6 +157,7 @@ Attributes:
     beta: The beta of the stock.
     risk_free_return: The risk-free rate of return.
     alpha: The alpha of the stock (specificially Jensen's alpha, as per the Capital Asset Pricing Model).
+    r-squared: The r-squared of the stock when comparing it to SPY (the benchmark).
 """
 
     def __init__(self, stock, index):
@@ -170,6 +171,7 @@ Attributes:
         self.beta = self.calculate_beta()
         self.risk_free_return = self.get_risk_free_return()
         self.alpha = self.calculate_alpha()
+        self.r_squared = self.calculate_r_squared()
 
     def calculate_covariance(self):
         """ Determines the covariance of the chosen stock and index.
@@ -208,7 +210,8 @@ Attributes:
         """ Determines the beta for the chosen stock
 
         Returns:
-            The beta of the chosen stock.
+            The beta of the chosen stock, which illustrates the expected change
+                in a security's return given a 1% change in the market index.
         """
 
         return self.calculate_covariance() / self.calculate_variance()
@@ -244,11 +247,38 @@ Attributes:
         """ Determines the alpha of the chosen stock.
 
         Returns:
-            The alpha of the chosen stock.
+            The alpha of the chosen stock, which illustrates the difference
+                between a security's return and its expected return per the
+                Security Market Line.
         """
 
-        return self.stock.total_return - self.risk_free_return -
-        (self.beta * (self.index.total_return - self.risk_free_return))
+        return self.stock.total_return - self.risk_free_return - (self.beta * (self.index.total_return - self.risk_free_return))
+
+    def calculate_r_squared(self):
+        """ Determines the r-squared value of the chosen stock.
+
+        Returns:
+            The r-squared value of the chosen stock, indicating how closely the 
+                stock's movements correlate with the benchmark index's (SPY).
+        """
+
+        product_of_returns = [a * b for a, b in zip(self.stock.total_returns,
+                                                    self.index.total_returns)]
+
+        sum_of_stock_returns = sum(self.stock.total_returns)
+        sum_of_index_returns = sum(self.index.total_returns)
+
+        sum_of_stock_returns_squared = sum(
+            [(n**2) for n in self.stock.total_returns])
+        sum_of_index_returns_squared = sum(
+            [(n**2) for n in self.index.total_returns])
+
+        # Split calculations for numerator and denominator for readability
+        numerator = 60 * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
+        denominator = ((60 * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
+                       (60 * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
+
+        return numerator / denominator
 
 
 stock = Stock(data)
@@ -259,3 +289,4 @@ calculator = Calculator(stock, index)
 print(len(calculator.stock.total_returns))
 print(round(calculator.beta, 2))
 print(round(calculator.alpha, 2))
+print(round(calculator.r_squared, 2))
