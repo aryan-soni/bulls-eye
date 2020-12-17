@@ -47,10 +47,10 @@ Attributes:
         # Populate returns list for stock.
         if self.years_of_data >= 5:
             for i in range(60):
-                self.total_returns.append(self.calculate_month_return(i + 1))
+                self.total_returns.append(self.calculate_month_return(i))
         else:
             for i in range(self.months_of_data):
-                self.total_returns.append(self.calculate_month_return(i + 1))
+                self.total_returns.append(self.calculate_month_return(i))
 
         # Determine total return over 5 years
         self.total_return = self.calculate_total_return()
@@ -207,7 +207,7 @@ Attributes:
         if self.stock.years_of_data >= 5:
             return sum_of_squared_deviations / 59
         else:
-            return sum_of_squared_deviations / (self.stock.years_of_data - 1)
+            return sum_of_squared_deviations / (self.stock.months_of_data - 1)
 
     def calculate_beta(self):
         """ Determines the beta for the chosen stock
@@ -277,9 +277,14 @@ Attributes:
             [(n**2) for n in self.index.total_returns])
 
         # Split calculations for numerator and denominator for readability
-        numerator = 60 * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
-        denominator = ((60 * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
-                       (60 * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
+        if self.stock.years_of_data >= 5:
+            numerator = 60 * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
+            denominator = ((60 * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
+                (60 * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
+        else:
+            numerator = self.stock.months_of_data * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
+            denominator = ((self.stock.months_of_data * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
+                (self.stock.months_of_data * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5            
 
         return numerator / denominator
 
@@ -291,7 +296,10 @@ Attributes:
             of returns relative to the mean return.
         """
 
-        return (sum([(n ** 2) for n in self.stock.deviations]) / 59) ** 0.5
+        if self.stock.years_of_data >= 5:
+            return (sum([(n ** 2) for n in self.stock.deviations]) / 59) ** 0.5
+        else:
+            return (sum([(n ** 2) for n in self.stock.deviations]) / (self.stock.months_of_data - 1)) ** 0.5
 
 stock = Stock(data)
 index = Stock(index_data)
