@@ -158,6 +158,8 @@ Attributes:
     risk_free_return: The risk-free rate of return.
     alpha: The alpha of the stock (specificially Jensen's alpha, as per the Capital Asset Pricing Model).
     r-squared: The r-squared of the stock when comparing it to SPY (the benchmark).
+    standard_deviation: The standard deviation of the chosen stock, reflecting the spread
+        of returns relative to the mean return.
 """
 
     def __init__(self, stock, index):
@@ -172,6 +174,7 @@ Attributes:
         self.risk_free_return = self.get_risk_free_return()
         self.alpha = self.calculate_alpha()
         self.r_squared = self.calculate_r_squared()
+        self.standard_deviation = self.calculate_standard_deviation()
 
     def calculate_covariance(self):
         """ Determines the covariance of the chosen stock and index.
@@ -280,6 +283,15 @@ Attributes:
 
         return numerator / denominator
 
+    def calculate_standard_deviation(self):
+        """ Determines the standard deviation of the chosen stock.
+
+        Returns:
+            The standard deviation of the chosen stock, reflecting the spread
+            of returns relative to the mean return.
+        """
+
+        return (sum([(n ** 2) for n in self.stock.deviations]) / 59) ** 0.5
 
 stock = Stock(data)
 index = Stock(index_data)
@@ -290,3 +302,4 @@ print(len(calculator.stock.total_returns))
 print(round(calculator.beta, 2))
 print(round(calculator.alpha, 2))
 print(round(calculator.r_squared, 2))
+print(round(calculator.standard_deviation, 2))
