@@ -1,17 +1,12 @@
-from alpha_vantage.timeseries import TimeSeries
 import quandl
 
-api_key = input("Enter your Alpha Vantage API Key: ")
-ts = TimeSeries(key=api_key)
+def set_quandl_api_key(key):
+    """Sets the API key for Quandl.
 
-quandl.ApiConfig.api_key = input("Enter your Quandl API Key: ")
-
-stock_to_search = input("Please enter the stock's ticker: ")
-
-# Get json objects with the intraday data and another with the call's metadata
-data, meta_data = ts.get_monthly_adjusted(stock_to_search)
-index_data, index_meta_data = ts.get_monthly_adjusted("SPY")
-
+    Args:
+      key: The API key for Quandl.
+    """
+    quandl.ApiConfig.api_key = key
 
 class Stock:
     """ Models a Stock based on all its historic data.
@@ -391,14 +386,3 @@ Attributes:
         risk_free_rate = self.risk_free_return / 5
 
         return (self.stock.mean_annual_return - risk_free_rate) / self.standard_deviation
-
-stock = Stock(data)
-index = Stock(index_data)
-calculator = Calculator(stock, index)
-
-print(len(calculator.stock.total_monthly_returns))
-print(round(calculator.beta, 2))
-print(round(calculator.alpha, 2))
-print(round(calculator.r_squared, 2))
-print(round(calculator.standard_deviation, 2))
-print(round(calculator.sharpe_ratio, 2))
