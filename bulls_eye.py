@@ -1,3 +1,8 @@
+"""bulls_eye.py: Contains functionality to model a Stock based on all its historic data and leverages this model to 
+    calculate the 5 most prominent technical risk ratios, which are statistical measurements used in modern portfolio theory. """
+
+__author__      = "Aryan Soni"
+
 import quandl
 
 def set_quandl_api_key(key):
@@ -217,7 +222,8 @@ Attributes:
 
 
 class Calculator:
-    """ Models a calculator that can return the key historical measures of a stock (alpha, beta etc.).
+    """ Models a calculator that can calculate the 5 most prominent technical risk ratios of a stock, 
+            which are statistical measurements used in modern portfolio theory.
 
 Attributes:
     stock: The stock which will be examined.

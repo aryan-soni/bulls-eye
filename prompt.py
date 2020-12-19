@@ -1,3 +1,7 @@
+"""prompt.py: Organizes user input to test the bulls_eye.py module."""
+
+__author__      = "Aryan Soni"
+
 from alpha_vantage.timeseries import TimeSeries
 import bulls_eye
 
@@ -18,7 +22,6 @@ stock = bulls_eye.Stock(data)
 index = bulls_eye.Stock(index_data)
 calculator = bulls_eye.Calculator(stock, index)
 
-print(len(calculator.stock.total_monthly_returns))
 print(round(calculator.beta, 2))
 print(round(calculator.alpha, 2))
 print(round(calculator.r_squared, 2))
