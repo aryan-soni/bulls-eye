@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """prompt.py: Organizes user input to test the bulls_eye.py module."""
 
 __author__      = "Aryan Soni"
