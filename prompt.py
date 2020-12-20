@@ -36,15 +36,23 @@ while True:
 	while True:
 		try:
 			stock_to_search = input("Please enter the stock's ticker: ")
+
 			# Get json objects with the intraday data and another with the call's metadata
 			data, meta_data = ts.get_monthly_adjusted(stock_to_search)
+
+			stock = bulls_eye.Stock(data) # Create stock object
+
+			# If the stock is less than 2 years old
+			if(stock.months_of_data < 24):
+				print("Please enter a stock that is at least 2 years old")
+				continue
+
 		except:
 			print("This stock is not in the database. Please enter another ticker.")
 			continue
 
 		break
 
-	stock = bulls_eye.Stock(data)
 	index = bulls_eye.Stock(index_data)
 	calculator = bulls_eye.Calculator(stock, index)
 
@@ -60,4 +68,3 @@ while True:
 		break
 
 print("\nThanks for using Bulls' Eye!")
-
