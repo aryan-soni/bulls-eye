@@ -10,8 +10,19 @@ def set_quandl_api_key(key):
 
     Args:
       key: The API key for Quandl.
+
+    Returns:
+        Whether the API key received is valid.
     """
-    quandl.ApiConfig.api_key = key
+
+    try:
+        quandl.ApiConfig.api_key = key
+        test_data = quandl.get("USTREASURY/YIELD", start_date="2020-01-01",
+                                   end_date="2020-01-02")
+    except:
+        return False
+
+    return True
 
 class Stock:
     """ Models a Stock based on all its historic data.
