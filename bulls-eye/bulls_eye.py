@@ -1,9 +1,9 @@
 """bulls_eye.py: Contains functionality to model a Stock based on all its historic data and leverages this model to 
     calculate the 5 most prominent technical risk ratios, which are statistical measurements used in modern portfolio theory. """
 
-__author__      = "Aryan Soni"
-
 import quandl
+__author__ = "Aryan Soni"
+
 
 def set_quandl_api_key(key):
     """Sets the API key for Quandl.
@@ -18,11 +18,12 @@ def set_quandl_api_key(key):
     try:
         quandl.ApiConfig.api_key = key
         test_data = quandl.get("USTREASURY/YIELD", start_date="2020-01-01",
-                                   end_date="2020-01-02")
+                               end_date="2020-01-02")
     except:
         return False
 
     return True
+
 
 class Stock:
     """ Models a Stock based on all its historic data.
@@ -66,18 +67,22 @@ Attributes:
         # Populate monthly returns list for stock.
         if self.years_of_data >= 5:
             for i in range(60):
-                self.total_monthly_returns.append(self.calculate_month_return(i))
+                self.total_monthly_returns.append(
+                    self.calculate_month_return(i))
         else:
             for i in range(self.months_of_data):
-                self.total_monthly_returns.append(self.calculate_month_return(i))
+                self.total_monthly_returns.append(
+                    self.calculate_month_return(i))
 
         # Populate annual returns list for stock.
         if self.years_of_data >= 5:
             for i in range(5):
-                self.total_annual_returns.append(self.calculate_year_return(i * 12 + 1))
+                self.total_annual_returns.append(
+                    self.calculate_year_return(i * 12 + 1))
         else:
             for i in range(self.months_of_data // 12):
-                self.total_annual_returns.append(self.calculate_year_return(i * 12 + 1))
+                self.total_annual_returns.append(
+                    self.calculate_year_return(i * 12 + 1))
 
         # Determine total return over 5 years
         self.total_return = self.calculate_total_return()
@@ -89,24 +94,30 @@ Attributes:
             self.mean_monthly_return = sum(self.total_monthly_returns) / 60
             self.mean_annual_return = sum(self.total_annual_returns) / 5
         else:
-            self.mean_monthly_return = sum(self.total_monthly_returns) / self.months_of_data
-            self.mean_annual_return = sum(self.total_monthly_returns) / (self.months_of_data // 12)
+            self.mean_monthly_return = sum(
+                self.total_monthly_returns) / self.months_of_data
+            self.mean_annual_return = sum(
+                self.total_monthly_returns) / (self.months_of_data // 12)
 
         # Populate monthly deviations lists for stock.
         if self.years_of_data >= 5:
             for i in range(60):
-                self.deviations_monthly_returns.append(self.total_monthly_returns[i] - self.mean_monthly_return)
+                self.deviations_monthly_returns.append(
+                    self.total_monthly_returns[i] - self.mean_monthly_return)
         else:
             for i in range(self.months_of_data):
-                self.deviations_monthly_returns.append(self.total_monthly_returns[i] - self.mean_monthly_return)
+                self.deviations_monthly_returns.append(
+                    self.total_monthly_returns[i] - self.mean_monthly_return)
 
         # Populate annual deviations lists for stock.
         if self.years_of_data >= 5:
             for i in range(5):
-                self.deviations_annual_returns.append(self.total_annual_returns[i] - self.mean_annual_return)
+                self.deviations_annual_returns.append(
+                    self.total_annual_returns[i] - self.mean_annual_return)
         else:
             for i in range(self.months_of_data // 12):
-                self.deviations_annual_returns.append(self.total_annual_returns[i] - self.mean_annual_return)
+                self.deviations_annual_returns.append(
+                    self.total_annual_returns[i] - self.mean_annual_return)
 
     def calculate_month_return(self, end_index=1):
         """ Determines a stock's total return (%) for a given month
@@ -169,7 +180,7 @@ Attributes:
         """
 
         end_index = end_index
-        start_index = end_index + 12 # Start index is 12 months before the end_index
+        start_index = end_index + 12  # Start index is 12 months before the end_index
 
         # Isolate dates corresponding to end and start months, which will be a
         # string that will be used as a key.
@@ -288,7 +299,8 @@ Attributes:
             The variance of index.
         """
 
-        squared_deviations = [(n) ** 2 for n in self.index.deviations_monthly_returns]
+        squared_deviations = [
+            (n) ** 2 for n in self.index.deviations_monthly_returns]
 
         sum_of_squared_deviations = sum(squared_deviations)
 
@@ -366,13 +378,16 @@ Attributes:
 
         # Split calculations for numerator and denominator for readability
         if self.stock.years_of_data >= 5:
-            numerator = 60 * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
+            numerator = 60 * sum(product_of_returns) - \
+                sum_of_stock_returns * sum_of_index_returns
             denominator = ((60 * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
-                (60 * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
+                           (60 * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
         else:
-            numerator = self.stock.months_of_data * sum(product_of_returns) - sum_of_stock_returns * sum_of_index_returns
+            numerator = self.stock.months_of_data * \
+                sum(product_of_returns) - \
+                sum_of_stock_returns * sum_of_index_returns
             denominator = ((self.stock.months_of_data * sum_of_stock_returns_squared - (sum_of_stock_returns ** 2)) *
-                (self.stock.months_of_data * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5            
+                           (self.stock.months_of_data * sum_of_index_returns_squared - (sum_of_index_returns ** 2))) ** 0.5
 
         return numerator / denominator
 
@@ -388,7 +403,6 @@ Attributes:
             return (sum([(n ** 2) for n in self.stock.deviations_annual_returns]) / 4) ** 0.5
         else:
             return (sum([(n ** 2) for n in self.stock.deviations_annual_returns]) / ((self.stock.months_of_data // 12) - 1)) ** 0.5
-
 
     def calculate_sharpe_ratio(self):
         """ Determines the sharpe ratio of the chosen stock.
