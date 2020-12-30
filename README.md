@@ -1,6 +1,6 @@
 # Bull's Eye
 
-Bulls’ Eye calculates five key historical measures of a vast array of securities; facilitating effective risk management within the domain of quantitative finance.
+Bull's Eye calculates five key historical measures of a vast array of securities; facilitating effective risk management within the domain of quantitative finance.
 
 ## Demo
 
@@ -8,7 +8,7 @@ Bulls’ Eye calculates five key historical measures of a vast array of securiti
 
 ## Program Features
 
-Bulls’ Eye calculates the Beta, Alpha (Jensen’s Alpha), R-Squared, Standard Deviation, and Sharpe Ratio of a given security based on its data over 5 years. When calculating these measures, the program examines a security’s total returns (to account for dividends), however it is assumed that dividends are not reinvested. The following descriptions outline how this program calculates each historical measure:
+Bull's Eye calculates the Beta, Alpha (Jensen’s Alpha), R-Squared, Standard Deviation, and Sharpe Ratio of a given security based on its data over 5 years. When calculating these measures, the program examines a security’s total returns (to account for dividends), however it is assumed that dividends are not reinvested. The following descriptions outline how this program calculates each historical measure:
 
 ### Beta
 
